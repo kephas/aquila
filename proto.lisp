@@ -37,10 +37,11 @@ REPL goodies
 
 |#
 
-(defgeneric %monads-range (object))
+(defgeneric %monads-range (object)
+  (:documentation "Returns a string displaying the range of monads of OBJECT."))
 
 (defmethod %monads-range (object)
-  "")
+  "") ; not a range -> nothing to display
 
 (defmethod %monads-range ((object emdros-range))
   (format nil " {~a-~a}" (slot-value object 'first-monad) (slot-value object 'last-monad)))
