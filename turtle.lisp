@@ -54,3 +54,11 @@
   (:documentation "Is COMMAND mergeable into TARGET?"))
 
 (defmethod mergeable? (target command)) ; default case: NO
+
+(defun add-command (doc command)
+  (if (commands doc)
+      (let ((last (pop (commands doc))))
+	(if (mergeable? last command)
+	    (push (merge last command) (commands doc))
+	    (push command (commands doc))))
+      (push command (commands doc))))
