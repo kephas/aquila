@@ -44,29 +44,46 @@
    (uri :initarg :uri)))
 
 (defclass statement ()
-  ((subject :initarg :subj)
-   (verb :initarg :verb)
-   (object :initarg :obj)))
-
-(defclass predicate-list ()
-  ((subject :initarg :subj)
-   (predicates :initform nil :accessor predicates)))
+  ((subject :initarg :subj :reader subject)
+   (predicates :initform nil :initarg :preds :accessor predicates)))
 
 (defclass predicate ()
-  ((verb :initarg :verb)
-   (object :initarg :obj)))
-
-(defclass object-list ()
-  ((verb :initarg :verb)
-   (objects :initform nil :accessor objects)))
+  ((verb :initarg :verb :reader verb)
+   (objects :initform nil :initarg :objs :accessor objects)))
 
 
-(defgeneric merge (target command))
+(defun rdf-less? (res1 res2)
+  (string-lessp (uri res1) (uri res2)))
+
+(defun merge (target command)
+  (make-instance
+   'statement :subj (subject target)
+   :preds (let@ rec ((stack)
+		     (preds1 (predicates target))
+		     (preds2 (predicates command)))
+	    (let ((verb1 (verb (first preds1)))
+		  (verb2 (verb (first preds2))))
+	      (cond
+		((rdf-eq? verb1 verb2)
+		 (rec (cons (make-instance 'predicate :verb verb1
+					   :objs (remove-duplicates (append (objects (first preds1))
+									    (objects (first preds2)))))
+			    stack)
+		      (rest preds1) (rest preds2)))
+		((rdf-less? verb1 verb2)
+		 (rec (cons (first preds1) stack) (rest preds1) preds2))
+		((null preds2)
+		 (append (reverse stack) preds1))
+		(t
+		 (rec stack preds2 preds1)))))))
 
 (defgeneric mergeable? (target command)
   (:documentation "Is COMMAND mergeable into TARGET?"))
 
 (defmethod mergeable? (target command)) ; default case: NO
+
+(defmethod mergeable? ((target statement) (command statement))
+  (rdf-eq? (subject target) (subject command)))
 
 (defun add-command (doc command)
   (if (commands doc)
