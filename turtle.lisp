@@ -2,8 +2,8 @@
 
 (defclass turtle-doc ()
   ((current-base-uri :initform "")
-   (current-prefixes :initform (make-hash-table :test #'string-equal))
-   (commands :initform nil)))
+   (current-prefixes :initform (make-hash-table :test #'equal))
+   (commands :initform nil :accessor commands)))
 
 
 ; RDF graph components
