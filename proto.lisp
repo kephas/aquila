@@ -1,8 +1,18 @@
-(def-view-class book ()
-  ((id :column object-id-d :type integer)
-   (first-monad :type integer)
-   (last-monad :type integer)
-   (mdf-book :type integer)
+#|
+
+Emdros stuff
+
+|#
+
+(def-view-class emdros-object ()
+  ((id :column object-id-d :type integer)))
+
+(def-view-class emdros-range ()
+  ((first-monad :type integer)
+   (last-monad :type integer)))
+
+(def-view-class book (emdros-object emdros-range)
+  ((mdf-book :type integer)
    (%chapters :reader chapters-of
 	      :db-kind :join
 	      :db-info (:join-class chapter
@@ -10,11 +20,8 @@
 				    :foreign-key mdf-book)))
   (:base-table book-objects))
 
-(def-view-class chapter ()
-  ((id :column object-id-d :type integer)
-   (first-monad :type integer)
-   (last-monad :type integer)
-   (mdf-chapter :type integer)
+(def-view-class chapter (emdros-object emdros-range)
+  ((mdf-chapter :type integer)
    (mdf-book :type integer)
    (%book :reader in-book
 	  :db-kind :join
@@ -22,3 +29,23 @@
 				:foreign-key mdf-book
 				:set nil)))
   (:base-table chapter-objects))
+
+
+#|
+
+REPL goodies
+
+|#
+
+(defgeneric %monads-range (object))
+
+(defmethod %monads-range (object)
+  "")
+
+(defmethod %monads-range ((object emdros-range))
+  (format nil " {~a-~a}" (slot-value object 'first-monad) (slot-value object 'last-monad)))
+
+(defmethod print-object ((object emdros-object) stream)
+  (print-unreadable-object (object stream :type t)
+    (princ (slot-value object 'id) stream)
+    (princ (%monads-range object) stream)))
