@@ -12,8 +12,8 @@
   ((uri :initarg :uri :reader uri)))
 
 (defclass qnamed-resource (resource)
-  ((qual :initarg :qual)
-   (name :initarg :name)))
+  ((qual :initarg :qual :reader prefix)
+   (name :initarg :name :reader name)))
 
 (defclass blank ()
   ((id :initarg :id :reader id)))
@@ -92,3 +92,18 @@
 	    (push (merge last command) (commands doc))
 	    (push command (commands doc))))
       (push command (commands doc))))
+
+
+#|
+
+REPL goodies
+
+|#
+
+(defmethod print-object ((object resource) stream)
+  (print-unreadable-object (object stream)
+    (format stream "rdf <~a> " (uri object))))
+
+(defmethod print-object ((object qnamed-resource) stream)
+  (print-unreadable-object (object stream)
+    (format stream "rdf ~a:~a " (prefix object) (name object))))
