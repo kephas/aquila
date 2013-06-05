@@ -49,6 +49,6 @@ REPL goodies
   (format nil " {~a-~a}" (slot-value object 'first-monad) (slot-value object 'last-monad)))
 
 (defmethod print-object ((object emdros-object) stream)
-  (print-unreadable-object (object stream :type t)
+  (print-unreadable-object (object stream :type t :identity t)
     (princ (slot-value object 'id) stream)
     (princ (%monads-range object) stream)))
