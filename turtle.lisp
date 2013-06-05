@@ -13,7 +13,8 @@
 
 (defclass qnamed-resource (resource)
   ((qual :initarg :qual :reader prefix)
-   (name :initarg :name :reader name)))
+   (name :initarg :name :reader name))
+  (:default-initargs :uri nil))
 
 (defclass blank ()
   ((id :initarg :id :reader id)))
