@@ -94,6 +94,15 @@
       (push command (commands doc))))
 
 
+(defgeneric turtlize (object)
+  (:documentation "Return the turtle syntax representing OBJECT."))
+
+(defmethod turtlize ((object resource))
+  (format nil "<~a>" (uri object)))
+
+(defmethod turtlize ((object qnamed-resource))
+  (format nil "~a:~a" (prefix object) (name object)))
+
 #|
 
 REPL goodies
