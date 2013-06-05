@@ -109,10 +109,8 @@ REPL goodies
 
 |#
 
-(defmethod print-object ((object resource) stream)
+(defun print-rdf (object stream)
   (print-unreadable-object (object stream)
-    (format stream "rdf <~a> " (uri object))))
+    (format stream "rdf ~a " (turtlize object))))
 
-(defmethod print-object ((object qnamed-resource) stream)
-  (print-unreadable-object (object stream)
-    (format stream "rdf ~a:~a " (prefix object) (name object))))
+(defmethod print-object ((object resource) stream) (print-rdf object stream))
