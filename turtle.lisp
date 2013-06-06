@@ -24,8 +24,10 @@
 
 ; RDF graph components
 
-(defclass resource ()
+(defclass uriref ()
   ((uri :initarg :uri :reader uri)))
+
+(defclass resource (uriref) ())
 
 (defclass qnamed-resource (resource)
   ((qual :initarg :qual :reader prefix)
@@ -33,7 +35,7 @@
   (:default-initargs :uri nil))
 
 (defclass blank (qnamed-resource)
-  ((id :initarg :id :reader id))
+  ()
   (:default-initargs :qual "_" :uri nil))
 
 
@@ -54,12 +56,10 @@
 
 (defclass directive () ())
 
-(defclass base (directive)
-  ((uri :initarg :uri)))
+(defclass base (directive uriref) ())
 
-(defclass prefix (directive)
-  ((name :initarg :name)
-   (uri :initarg :uri)))
+(defclass prefix (directive uriref)
+  ((name :initarg :name)))
 
 (defclass statement ()
   ((subject :initarg :subj :reader subject)
