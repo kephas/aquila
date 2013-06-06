@@ -151,6 +151,14 @@
 (defmethod turtlize ((object predicate))
   (format nil "~a ~a" (turtlize (verb object)) (turtlize-list (objects object) ",")))
 
+
+(defun view-turtle (doc)
+  (with-output-to-string (out)
+    (let@ rec ((commands (reverse (commands doc))))
+      (let ((next (first commands)))
+	(when next
+	  (format out "~a~%" (turtlize next))
+	  (rec (rest commands)))))))
 #|
 
 REPL goodies
