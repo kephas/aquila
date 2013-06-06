@@ -16,8 +16,9 @@
    (name :initarg :name :reader name))
   (:default-initargs :uri nil))
 
-(defclass blank ()
-  ((id :initarg :id :reader id)))
+(defclass blank (qnamed-resource)
+  ((id :initarg :id :reader id))
+  (:default-initargs :qual "_" :uri nil))
 
 
 (defgeneric rdf-eq? (subj1 subj2))
@@ -52,6 +53,10 @@
   ((verb :initarg :verb :reader verb)
    (objects :initform nil :initarg :objs :accessor objects)))
 
+(defun make-statement (subj pred obj)
+  (make-instance 'statement :subj subj :preds (list (make-instance 'predicate :verb pred
+								   :objs (list obj)))))
+
 
 (defun rdf-less? (res1 res2)
   (string-lessp (uri res1) (uri res2)))
@@ -62,16 +67,16 @@
    :preds (let@ rec ((stack)
 		     (preds1 (predicates target))
 		     (preds2 (predicates command)))
-	    (let ((verb1 (verb (first preds1)))
-		  (verb2 (verb (first preds2))))
+	    (let ((verb1 (if-let (pred1 (first preds1)) (verb pred1)))
+		  (verb2 (if-let (pred2 (first preds2)) (verb pred2))))
 	      (cond
-		((rdf-eq? verb1 verb2)
+		((and verb1 verb2 (rdf-eq? verb1 verb2))
 		 (rec (cons (make-instance 'predicate :verb verb1
 					   :objs (remove-duplicates (append (objects (first preds1))
 									    (objects (first preds2)))))
 			    stack)
 		      (rest preds1) (rest preds2)))
-		((rdf-less? verb1 verb2)
+		((and verb1 verb2 (rdf-less? verb1 verb2))
 		 (rec (cons (first preds1) stack) (rest preds1) preds2))
 		((null preds2)
 		 (append (reverse stack) preds1))
@@ -104,6 +109,24 @@
 (defmethod turtlize ((object qnamed-resource))
   (format nil "~a:~a" (prefix object) (name object)))
 
+(defmethod turtlize ((object string)) object)
+
+
+(defun turtlize-list (list separator)
+  (with-output-to-string (out)
+    (let@ rec ((separate? nil)
+	       (elements list))
+      (when elements
+	(if separate? (format out " ~a " separator))
+	(princ (turtlize (first elements)) out)
+	(rec t (rest elements))))))
+
+(defmethod turtlize ((object statement))
+  (format nil "~a ~a ." (turtlize (subject object)) (turtlize-list (predicates object) ";")))
+
+(defmethod turtlize ((object predicate))
+  (format nil "~a ~a" (turtlize (verb object)) (turtlize-list (objects object) ",")))
+
 #|
 
 REPL goodies
@@ -115,3 +138,5 @@ REPL goodies
     (format stream "rdf ~a " (turtlize object))))
 
 (defmethod print-object ((object resource) stream) (print-rdf object stream))
+
+(defmethod print-object ((object statement) stream) (print-rdf object stream))
