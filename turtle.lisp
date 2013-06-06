@@ -119,6 +119,12 @@
 (defgeneric turtlize (object)
   (:documentation "Return the turtle syntax representing OBJECT."))
 
+(defmethod turtlize ((object base))
+  (format nil "@base <~a>" (uri object)))
+
+(defmethod turtlize ((object prefix))
+  (format nil "@prefix ~a:~a" (prefix object) (uri object)))
+
 (defmethod turtlize ((object resource))
   (format nil "<~a>" (uri object)))
 
