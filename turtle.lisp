@@ -59,7 +59,7 @@
 (defclass base (directive uriref) ())
 
 (defclass prefix (directive uriref)
-  ((name :initarg :name)))
+  ((name :initarg :name :reader name)))
 
 (defclass statement ()
   ((subject :initarg :subj :reader subject)
@@ -112,7 +112,9 @@
       (let ((last (pop (commands doc))))
 	(if (mergeable? last command)
 	    (push (merge last command) (commands doc))
-	    (push command (commands doc))))
+	    (progn
+	      (push last (commands doc))
+	      (push command (commands doc)))))
       (push command (commands doc))))
 
 
@@ -123,7 +125,7 @@
   (format nil "@base <~a>" (uri object)))
 
 (defmethod turtlize ((object prefix))
-  (format nil "@prefix ~a:~a" (prefix object) (uri object)))
+  (format nil "@prefix ~a:~a" (name object) (uri object)))
 
 (defmethod turtlize ((object resource))
   (format nil "<~a>" (uri object)))
