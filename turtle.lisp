@@ -107,15 +107,55 @@
 (defmethod mergeable? ((target statement) (command statement))
   (rdf-eq? (subject target) (subject command)))
 
-(defun add-command (doc command)
-  (if (commands doc)
-      (let ((last (pop (commands doc))))
-	(if (mergeable? last command)
-	    (push (merge last command) (commands doc))
-	    (progn
-	      (push last (commands doc))
-	      (push command (commands doc)))))
-      (push command (commands doc))))
+
+(defgeneric ensure-rdf-eqness (object doc)
+  (:documentation "Return a copy of OBJECT (or itself) such that all references reachable
+from it are comparable with RDF-EQ?, with qnames' URIs expanded in the
+context of DOC."))
+
+(defmethod ensure-rdf-eqness ((object statement) doc)
+  (make-instance 'statement
+		 :subj (ensure-rdf-eqness (subject object) doc)
+		 :preds	(mapcar (lambda (p) (ensure-rdf-eqness p doc)) (predicates object))))
+
+(defmethod ensure-rdf-eqness ((object predicate) doc)
+  (make-instance 'predicate
+		 :verb (ensure-rdf-eqness (verb object) doc)
+		 :objs (mapcar (lambda (o) (ensure-rdf-eqness o doc)) (objects object))))
+
+(defmethod ensure-rdf-eqness ((object qnamed-resource) doc)
+  (if-let (prefix-uri (gethash (prefix object) (slot-value doc 'current-prefixes)))
+    (make-instance 'qnamed-resource
+		   :pref (prefix object)
+		   :name (name object)
+		   :uri (format nil "~a~a" prefix-uri (name object)))
+    (error "Prefix ~S not found in turtle document." (prefix object))))
+
+(defmethod ensure-rdf-eqness ((object blank) doc)
+  object)
+
+
+(defgeneric add-command (doc command))
+
+(defmethod add-command (doc (command base))
+  (push command (commands doc))
+  (setf (slot-value doc 'current-base-uri) (uri command)))
+
+(defmethod add-command (doc (command prefix))
+  (push command (commands doc))
+  (setf (gethash (name command) (slot-value doc 'current-prefixes))
+	(uri command)))
+
+(defmethod add-command (doc (command statement))
+  (let ((command (ensure-rdf-eqness command doc)))
+    (if (commands doc)
+	(let ((last (pop (commands doc))))
+	  (if (mergeable? last command)
+	      (push (merge last command) (commands doc))
+	      (progn
+		(push last (commands doc))
+		(push command (commands doc)))))
+	(push command (commands doc)))))
 
 
 (defgeneric turtlize (object)
