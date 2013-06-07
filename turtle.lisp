@@ -45,7 +45,7 @@
   (equal (uri subj1) (uri subj2)))
 
 (defmethod rdf-eq? ((subj1 blank) (subj2 blank))
-  (equal (id subj1) (id subj2)))
+  (equal (name subj1) (name subj2)))
 
 (defmethod rdf-eq? ((subj1 resource) (subj2 blank)))
 (defmethod rdf-eq? ((subj1 blank) subj2)
