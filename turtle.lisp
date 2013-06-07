@@ -30,13 +30,13 @@
 (defclass resource (uriref) ())
 
 (defclass qnamed-resource (resource)
-  ((qual :initarg :qual :reader prefix)
+  ((qual :initarg :pref :reader prefix)
    (name :initarg :name :reader name))
   (:default-initargs :uri nil))
 
 (defclass blank (qnamed-resource)
   ()
-  (:default-initargs :qual "_" :uri nil))
+  (:default-initargs :pref "_" :uri nil))
 
 
 (defgeneric rdf-eq? (subj1 subj2))
