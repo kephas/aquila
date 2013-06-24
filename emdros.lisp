@@ -29,6 +29,26 @@ Emdros stuff
   ((first-monad :type integer)
    (last-monad :type integer)))
 
+(defun %sym (format sym)
+  (intern (string-upcase (format nil format sym))))
+
+(defmacro define-containee-view-class (field)
+  (let ((class (%sym "emdros-in-~a" field))
+	(slot (%sym "mdf-~a" field))
+	(reader (%sym "in-~a" field))
+	(join-slot (%sym "%~a" field))
+	(join-class (%sym "~a" field)))
+    `(def-view-class ,class ()
+       ((,slot :type integer)
+	(,join-slot :reader ,reader
+		    :db-kind :join
+		    :db-info (:join-class ,join-class :home-key ,slot
+					  :foreign-key ,slot
+					  :set nil))))))
+
+(define-containee-view-class "book")
+(define-containee-view-class "chapter")
+
 (def-view-class book (emdros-object emdros-range)
   ((mdf-book :type integer)
    (%chapters :reader chapters-of
@@ -38,14 +58,8 @@ Emdros stuff
 				    :foreign-key mdf-book)))
   (:base-table book-objects))
 
-(def-view-class chapter (emdros-object emdros-range)
-  ((mdf-chapter :type integer)
-   (mdf-book :type integer)
-   (%book :reader in-book
-	  :db-kind :join
-	  :db-info (:join-class book :home-key mdf-book
-				:foreign-key mdf-book
-				:set nil)))
+(def-view-class chapter (emdros-object emdros-range emdros-in-book)
+  ((mdf-chapter :type integer))
   (:base-table chapter-objects))
 
 
