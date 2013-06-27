@@ -86,7 +86,7 @@ Emdros stuff
   ((monads :type string)))
 
 
-(def-view-class sentence-atom (emdros-object emdros-range emdros-with-parents)
+(def-view-class sentence-atom (emdros-range emdros-with-parents emdros-object)
   ((mdf-sentence-atom-number :type integer))
   (:base-table sentence-atom-objects))
 
@@ -95,26 +95,26 @@ Emdros stuff
   (:base-table sentence-objects))
 
 
-(def-view-class phrase-atom (emdros-object emdros-range emdros-with-parents emdros-with-mother)
+(def-view-class phrase-atom (emdros-range emdros-with-parents emdros-with-mother emdros-object)
   ()
   (:base-table phrase-atom-objects))
 
-(def-view-class phrase (emdros-object emdros-range emdros-with-parents emdros-with-monads)
+(def-view-class phrase (emdros-range emdros-with-parents emdros-with-monads emdros-object)
   ()
   (:base-table phrase-objects))
 
-(def-view-class subphrase (emdros-object emdros-range emdros-with-parents emdros-with-mother)
+(def-view-class subphrase (emdros-range emdros-with-parents emdros-with-mother emdros-object)
   ((mdf-subphrase-kind :type integer)
    (mdf-subphrase-type :type integer))
   (:table subphrase-objects))
 
 
-(def-view-class clause-atom (emdros-object emdros-range emdros-with-parents)
+(def-view-class clause-atom (emdros-range emdros-with-parents emdros-object)
   ((mdf-clause-atom-type :type integer)
    (mdf-clause-atom-number :type integer))
   (:base-table clause-atom-objects))
 
-(def-view-class clause (emdros-object emdros-range emdros-with-parents)
+(def-view-class clause (emdros-range emdros-with-parents emdros-object)
   ()
   (:base-table clause-objects))
 
