@@ -30,37 +30,44 @@ Emdros stuff
    (last-monad :type integer)))
 
 (defun %sym (format sym)
-  (intern (string-upcase (format nil format sym))))
+  (intern (format nil format sym)))
 
-(defmacro define-containee-view-class (field)
-  (let ((class (%sym "emdros-in-~a" field))
-	(slot (%sym "mdf-~a" field))
-	(reader (%sym "in-~a" field))
-	(join-slot (%sym "%~a" field))
-	(join-class (%sym "~a" field)))
+(defun container/ee-view-class-code (join-class class-fmt reader-fmt set?)
+  (let ((class (%sym class-fmt join-class))
+	(slot (%sym "MDF-~a" join-class))
+	(reader (%sym reader-fmt join-class))
+	(join-slot (%sym "%~a" join-class)))
     `(def-view-class ,class ()
        ((,slot :type integer)
 	(,join-slot :reader ,reader
 		    :db-kind :join
 		    :db-info (:join-class ,join-class :home-key ,slot
 					  :foreign-key ,slot
-					  :set nil))))))
+					  :set ,set?))))))
 
-(define-containee-view-class "book")
-(define-containee-view-class "chapter")
+(defmacro define-containee-view-class (join-class)
+  (container/ee-view-class-code join-class "EMDROS-IN-~a" "IN-~a" nil))
 
-(def-view-class book (emdros-object emdros-range)
-  ((mdf-book :type integer)
-   (%chapters :reader chapters-of
-	      :db-kind :join
-	      :db-info (:join-class chapter
-				    :home-key mdf-book
-				    :foreign-key mdf-book)))
+(defmacro define-container-view-class (join-class)
+  (container/ee-view-class-code join-class "EMDROS-HAS-~a" "~aS-OF" t))
+
+(define-containee-view-class book)
+(define-containee-view-class chapter)
+(define-container-view-class chapter)
+(define-container-view-class verse)
+
+(def-view-class book (emdros-object emdros-range emdros-has-chapter emdros-has-verse)
+  ((mdf-book :type integer))
   (:base-table book-objects))
 
 (def-view-class chapter (emdros-object emdros-range emdros-in-book)
   ((mdf-chapter :type integer))
   (:base-table chapter-objects))
+
+(def-view-class verse (emdros-object emdros-range emdros-in-book emdros-in-chapter)
+  ((mdf-verse :type integer)
+   (mdf-verse-label :type string))
+  (:base-table verse-objects))
 
 
 #|
