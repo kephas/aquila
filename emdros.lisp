@@ -135,6 +135,17 @@ Emdros stuff
 	(first found)
 	(rec (rest types))))))
 
+
+(defgeneric parents (object))
+
+(defmethod parents ((object emdros-object))) ; for objects with no parents field
+
+(defmethod parents ((object emdros-with-parents))
+  (mapcar #'get-object
+	  (mapcar #'parse-integer
+		  (remove "" (split-sequence #\ (slot-value object 'mdf-parents)) :test #'equal))))
+
+
 #|
 
 REPL goodies
