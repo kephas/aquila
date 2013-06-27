@@ -32,24 +32,25 @@ Emdros stuff
 (defun %sym (format sym)
   (intern (format nil format sym)))
 
-(defun container/ee-view-class-code (join-class class-fmt reader-fmt set?)
+(defun container/ee-view-class-code (join-class class-fmt reader-fmt slot? set?)
   (let ((class (%sym class-fmt join-class))
 	(slot (%sym "MDF-~a" join-class))
 	(reader (%sym reader-fmt join-class))
 	(join-slot (%sym "%~a" join-class)))
     `(def-view-class ,class ()
-       ((,slot :type integer)
-	(,join-slot :reader ,reader
-		    :db-kind :join
-		    :db-info (:join-class ,join-class :home-key ,slot
-					  :foreign-key ,slot
-					  :set ,set?))))))
+       ,(append
+	 (if slot? `((,slot :type integer)))
+	 `((,join-slot :reader ,reader
+		       :db-kind :join
+		       :db-info (:join-class ,join-class :home-key ,slot
+					     :foreign-key ,slot
+					     :set ,set?)))))))
 
 (defmacro define-containee-view-class (join-class)
-  (container/ee-view-class-code join-class "EMDROS-IN-~a" "IN-~a" nil))
+  (container/ee-view-class-code join-class "EMDROS-IN-~a" "IN-~a" t nil))
 
 (defmacro define-container-view-class (join-class)
-  (container/ee-view-class-code join-class "EMDROS-HAS-~a" "~aS-OF" t))
+  (container/ee-view-class-code join-class "EMDROS-HAS-~a" "~aS-OF" nil t))
 
 (define-containee-view-class book)
 (define-containee-view-class chapter)
@@ -70,7 +71,7 @@ Emdros stuff
   (:base-table verse-objects))
 
 (def-view-class half-verse (emdros-object emdros-range)
-  ((mdf-hal-verse :type string))
+  ((mdf-half-verse :type string))
   (:base-table half-verse-objects))
 
 
@@ -88,7 +89,7 @@ Emdros stuff
   ((mdf-sentence-atom-number :type integer))
   (:base-table sentence-atom-objects))
 
-(def-view-class sentence (emdros-object emdros-range emdros-with-parents emdros-with-monads)
+(def-view-class sentence (emdros-object emdros-range emdros-with-monads)
   ((mdf-number-within-chapter :type integer))
   (:base-table sentence-objects))
 
