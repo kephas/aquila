@@ -69,6 +69,63 @@ Emdros stuff
    (mdf-verse-label :type string))
   (:base-table verse-objects))
 
+(def-view-class half-verse (emdros-object emdros-range)
+  ((mdf-hal-verse :type string))
+  (:base-table half-verse-objects))
+
+
+(def-view-class emdros-with-parents ()
+  ((mdf-parents :type string)))
+
+(def-view-class emdros-with-mother ()
+  ((mdf-mother :type integer)))
+
+(def-view-class emdros-with-monads ()
+  ((monads :type string)))
+
+
+(def-view-class sentence-atom (emdros-object emdros-range emdros-with-parents)
+  ((mdf-sentence-atom-number :type integer))
+  (:base-table sentence-atom-objects))
+
+(def-view-class sentence (emdros-object emdros-range emdros-with-parents emdros-with-monads)
+  ((mdf-number-within-chapter :type integer))
+  (:base-table sentence-objects))
+
+
+(def-view-class phrase-atom (emdros-object emdros-range emdros-with-parents emdros-with-mother)
+  ()
+  (:base-table phrase-atom-objects))
+
+(def-view-class phrase (emdros-object emdros-range emdros-with-parents emdros-with-monads)
+  ()
+  (:base-table phrase-objects))
+
+(def-view-class subphrase (emdros-object emdros-range emdros-with-parents emdros-with-mother)
+  ((mdf-subphrase-kind :type integer)
+   (mdf-subphrase-type :type integer))
+  (:table subphrase-objects))
+
+
+(def-view-class clause-atom (emdros-object emdros-range emdros-with-parents)
+  ((mdf-clause-atom-type :type integer)
+   (mdf-clause-atom-number :type integer))
+  (:base-table clause-atom-objects))
+
+(def-view-class clause (emdros-object emdros-range emdros-with-parents)
+  ()
+  (:base-table clause-objects))
+
+
+(def-view-class word (emdros-object)
+  ((first-monad :type integer))
+  (:base-table word-objects))
+
+
+(defvar *object-types* '(book chapter verse half-verse
+			 sentence sentence-atom phrase phrase-atom subphrase
+			 clause clause-atom word))
+
 
 #|
 
