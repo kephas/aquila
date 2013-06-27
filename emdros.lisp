@@ -15,6 +15,7 @@
     along with this program.  If not, see <http://www.gnu.org/licenses/>. |#
 
 (in-package :nothos.net/2013.05.aquila)
+(file-enable-sql-reader-syntax)
 
 #|
 
@@ -127,6 +128,12 @@ Emdros stuff
 			 sentence sentence-atom phrase phrase-atom subphrase
 			 clause clause-atom word))
 
+(defun get-object (id)
+  (let@ rec ((types *object-types*))
+    (when types
+      (if-let (found (select (first types) :where [= [object-id-d] id] :flatp t))
+	(first found)
+	(rec (rest types))))))
 
 #|
 
