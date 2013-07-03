@@ -106,7 +106,7 @@ Emdros stuff
 (def-view-class subphrase (emdros-range emdros-with-parents emdros-with-mother emdros-object)
   ((mdf-subphrase-kind :type integer)
    (mdf-subphrase-type :type integer))
-  (:table subphrase-objects))
+  (:base-table subphrase-objects))
 
 
 (def-view-class clause-atom (emdros-range emdros-with-parents emdros-object)
